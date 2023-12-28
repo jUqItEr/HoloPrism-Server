@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://hxlab.co.kr:13308/holoprism?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: dita2414
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    user:
+      name: admin
+      password: 1234
+
+server:
+  port: 8585
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace

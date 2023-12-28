@@ -19,6 +19,44 @@ spring:
     user:
       name: admin
       password: 1234
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 481032003116-tpt5kjd4scbvd15b1can0ev9rvi3ip6f.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+          naver:
+            client-id: WrNq6vWD0ij_6ahNysws
+            client-secret: kPwpECUABv
+            client-name: Naver
+            clientAuthenticationMethod: post
+            authorization-grant-type: authorization_code
+            redirectUri: http://localhost:8585/login/oauth2/code/naver
+          kakao:
+            client-id: f78918bee6bf5f71006a61dfca7ee87e
+            client-secret: b170342e0d607f488fc749851d06096e
+            authorization-grant-type: authorization_code
+            clientAuthenticationMethod: post
+            client-name: Kakao
+            redirect-uri: '{baseUrl}/login/oauth2/code/{registrationId}'
+        provider:
+          naver:
+            authorizationUri: https://nid.naver.com/oauth2.0/authorize
+            tokenUri: https://nid.naver.com/oauth2.0/token
+            userInfoUri: https://openapi.naver.com/v1/nid/me
+            user-name-attribute: response
+          kakao:
+            authorizationUri: https://kauth.kakao.com/oauth/authorize
+            tokenUri: https://kauth.kakao.com/oauth/token
+            userInfoUri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  mvc:
+    view:
+      prefix: /WEB-INF/
+      suffix: .html
 
 server:
   port: 8585
@@ -27,3 +65,4 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+

@@ -1,1 +1,1 @@
-rootProject.name = "HoloPrism"
+rootProject.name = "HoloPrism-Server"

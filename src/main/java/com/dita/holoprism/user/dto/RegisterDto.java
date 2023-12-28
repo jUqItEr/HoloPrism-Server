@@ -13,12 +13,14 @@ import lombok.RequiredArgsConstructor;
 public class RegisterDto {
     private String id;
     private String password;
+    private String nickname;
     private String email;
 
     public UserEntity toEntity() {
         return UserEntity.builder()
                 .id(id)
                 .password(password)
+                .nickname(nickname)
                 .email(email)
                 .build();
     }
@@ -28,6 +30,7 @@ public class RegisterDto {
                 .id(entity.getId())
                 .email(entity.getEmail())
                 .password(entity.getPassword())
+                .nickname(entity.getNickname())
                 .build();
     }
 }

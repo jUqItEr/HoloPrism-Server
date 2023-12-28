@@ -38,4 +38,7 @@ public class UserEntity {
 
     @Column(name = "visited_at", length = 64)
     private String visitedTime;
+
+    @Column(name = "role")
+    private int permission;
 }

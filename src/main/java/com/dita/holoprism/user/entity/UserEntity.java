@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "user_tbl")
 public class UserEntity {
     @Id
+    @Column(length = 64)
     private String id;
 
     @Column(length = 160)

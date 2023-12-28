@@ -19,6 +19,7 @@ spring:
     user:
       name: admin
       password: 1234
+
     oauth2:
       client:
         registration:
@@ -53,6 +54,7 @@ spring:
             tokenUri: https://kauth.kakao.com/oauth/token
             userInfoUri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+
   mvc:
     view:
       prefix: /WEB-INF/

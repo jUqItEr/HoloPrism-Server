@@ -3,6 +3,7 @@ package com.dita.holoprism.security.config;
 import com.dita.holoprism.security.service.OAuth2UserService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.filters.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,9 +24,11 @@ public class SpringSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    private final CorsConfig corsConfig;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+            .addFilter(corsConfig.corsFilter())
             .authorizeHttpRequests(request -> request
                 .dispatcherTypeMatchers(DispatcherType.REQUEST)
                     .permitAll()

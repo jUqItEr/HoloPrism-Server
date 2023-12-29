@@ -1,9 +1,7 @@
 package com.dita.holoprism.user.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.dita.holoprism.layout.entity.LayoutEntity;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Data
@@ -39,4 +37,7 @@ public class UserEntity {
 
     @Column(name = "role")
     private int permission;
+
+    @OneToOne(mappedBy = "user")
+    private LayoutEntity layout;
 }

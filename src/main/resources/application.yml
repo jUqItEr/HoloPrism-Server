@@ -56,11 +56,6 @@ spring:
             userInfoUri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-  mvc:
-    view:
-      prefix: /WEB-INF/
-      suffix: .html
-
 server:
   port: 8585
 

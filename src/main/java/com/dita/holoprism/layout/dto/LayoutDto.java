@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class LayoutDto {
     private long id;
-    private String layout;
+    private Map<String, Object> layout;
 
     public LayoutEntity toEntity() {
         return LayoutEntity.builder()

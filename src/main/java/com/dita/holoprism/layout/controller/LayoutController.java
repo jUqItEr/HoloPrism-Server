@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class LayoutController {
     private final LayoutService layoutService;
 
-    @PostMapping("/update")
+    @PostMapping(value = "/update")
     public ResponseEntity<?> updateLayout(@Validated @RequestBody LayoutDto dto) {
         return ResponseEntity.ok(layoutService.updateLayout(dto));
     }

@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.2.1"
 	id("io.spring.dependency-management") version "1.1.4"
+	id("com.google.protobuf") version "0.9.4"
 }
 
 group = "com.dita"
@@ -26,7 +27,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+	implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.7.0")
+	implementation("com.google.protobuf:protobuf-java:3.25.1")
+	implementation("com.google.protobuf:protobuf-java-util:3.25.1")
+	implementation("io.grpc:grpc-protobuf:1.39.0")
+	implementation("io.grpc:grpc-stub:1.39.0")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")

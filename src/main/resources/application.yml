@@ -34,14 +34,14 @@ spring:
             client-id: WrNq6vWD0ij_6ahNysws
             client-secret: kPwpECUABv
             client-name: Naver
-            clientAuthenticationMethod: post
+            clientAuthenticationMethod: client_secret_post
             authorization-grant-type: authorization_code
             redirectUri: http://localhost:8585/login/oauth2/code/naver
           kakao:
             client-id: f78918bee6bf5f71006a61dfca7ee87e
             client-secret: b170342e0d607f488fc749851d06096e
             authorization-grant-type: authorization_code
-            clientAuthenticationMethod: post
+            clientAuthenticationMethod: client_secret_post
             client-name: Kakao
             redirect-uri: '{baseUrl}/login/oauth2/code/{registrationId}'
         provider:

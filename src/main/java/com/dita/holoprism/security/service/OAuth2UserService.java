@@ -2,7 +2,10 @@ package com.dita.holoprism.security.service;
 
 import com.dita.holoprism.security.auth.PrincipalDetails;
 import com.dita.holoprism.security.service.provider.GoogleUserInfo;
+import com.dita.holoprism.security.service.provider.KakaoUserInfo;
+import com.dita.holoprism.security.service.provider.NaverUserInfo;
 import com.dita.holoprism.security.service.provider.OAuth2UserInfo;
+import com.dita.holoprism.user.dto.RegisterDto;
 import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
 import com.dita.holoprism.user.service.UserService;
@@ -13,6 +16,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,6 +26,9 @@ import java.util.Optional;
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    String formattedDateTime = LocalDateTime.now().format(formatter);
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         System.out.println("userRequest : " + userRequest); //TODO
@@ -36,6 +45,10 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo oAuth2UserInfo = null;
         if (userRequest.getClientRegistration().getRegistrationId().equals("google")) {
             oAuth2UserInfo = new GoogleUserInfo(oAuth2User.getAttributes());
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("naver")) {
+            oAuth2UserInfo = new NaverUserInfo((Map)oAuth2User.getAttributes().get("response"));
+        }else if(userRequest.getClientRegistration().getRegistrationId().equals("kakao")) {
+            oAuth2UserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
         }else {
             System.out.println("what?"); //TODO
         }
@@ -57,11 +70,13 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .provider(oAuth2UserInfo.getSocialType())
                     .image(oAuth2UserInfo.getImage())
                     .permission(0)
+                    .createdTime(String.valueOf(formattedDateTime))
+                    .visitedTime(String.valueOf(formattedDateTime))
                     .build();
 
+            userRepository.save(user); // 최초 회원가입 createdTime now
+//            userRepository.updateVisitedTime(userId); // 최초 회원가입 visitedTime now
             System.out.println("register user Info!!! : " + user);
-            // 최초 회원가입 createdTime now
-            // 최초 회원가입 visitedTime now
         }
         return new PrincipalDetails(user, oAuth2User.getAttributes());
     }

@@ -32,4 +32,8 @@ public class UserService {
         String id = providerDto.getId();
         return userRepository.findByIdAndProvider(id,provider);
     }
+
+    public void updateVisitedTime(String userId) {
+        userRepository.updateVisitedTime(userId);
+    }
 }

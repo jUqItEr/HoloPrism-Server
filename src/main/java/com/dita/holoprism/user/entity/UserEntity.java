@@ -35,6 +35,12 @@ public class UserEntity {
     @Column(name = "visited_at", length = 64)
     private String visitedTime;
 
+    @Column(name = "access_token")
+    private String accessToken;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
     @Column(name = "role")
     private int permission;
 

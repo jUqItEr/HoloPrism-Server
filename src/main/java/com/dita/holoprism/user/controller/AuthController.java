@@ -27,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<String> authorize(@Valid LoginDto loginDto) {
+    public ResponseEntity<String> authorize(@Valid @RequestBody LoginDto loginDto) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
@@ -46,8 +46,19 @@ public class AuthController {
     @PostMapping("/token/principal")
     public ResponseEntity<?> getPrincipal() {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         UserEntity user = principalDetails.getUser();
-        user.setPassword(null);
-        return ResponseEntity.ok(user);
+        UserEntity userResponse = UserEntity.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .image(user.getImage())
+                .createdTime(user.getCreatedTime())
+                .visitedTime(user.getVisitedTime())
+                .accessToken(user.getAccessToken())
+                .permission(user.getPermission())
+                .build();
+
+        return ResponseEntity.ok(userResponse);
     }
 }

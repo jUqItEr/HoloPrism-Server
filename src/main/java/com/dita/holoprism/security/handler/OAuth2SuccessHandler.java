@@ -19,7 +19,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -51,7 +50,5 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String targetUrl = "";
 
         response.addHeader("Authorization", "Bearer " + jwtAccessToken);
-        response.addHeader("Authorization-Refresh", "Bearer " + jwtRefreshToken);
-//        response.sendRedirect(targetUrl);
     }
 }

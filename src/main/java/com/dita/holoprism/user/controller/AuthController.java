@@ -1,8 +1,10 @@
 package com.dita.holoprism.user.controller;
 
+import com.dita.holoprism.security.auth.PrincipalDetails;
 import com.dita.holoprism.security.jwt.JwtFilter;
 import com.dita.holoprism.security.jwt.JwtTokenProvider;
 import com.dita.holoprism.user.dto.LoginDto;
+import com.dita.holoprism.user.entity.UserEntity;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,10 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -28,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<String> authorize(@Valid @RequestBody LoginDto loginDto) {
+    public ResponseEntity<String> authorize(@Valid LoginDto loginDto) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
@@ -42,5 +41,13 @@ public class AuthController {
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
         return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("/token/principal")
+    public ResponseEntity<?> getPrincipal() {
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserEntity user = principalDetails.getUser();
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
     }
 }

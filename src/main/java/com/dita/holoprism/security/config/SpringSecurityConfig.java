@@ -49,6 +49,11 @@ public class SpringSecurityConfig {
                 .anyRequest()
                     .permitAll()
             )
+            .formLogin(login -> login
+                    .defaultSuccessUrl("/index", true)
+                    .successHandler(oAuth2SuccessHandler)
+                    .permitAll()
+            )
             .oauth2Login(session -> session
                 .userInfoEndpoint(info -> info
                     .userService(service)

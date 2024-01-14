@@ -38,7 +38,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         if (userRepository.findUserRefreshToken(user.getId()) == 1) { // refreshToken이 이미 존재할 경우
 
             String preRefreshToken = userRepository.getUserRefreshToken(user.getId());
-            if (jwtTokenProvider.validateToken(preRefreshToken)) { // 토큰 유효성 검사
+            if (jwtTokenProvider.validateToken(preRefreshToken).equals("ACCESS")) { // 토큰 유효성 검사
                 userRepository.updateToken(user.getId(), jwtAccessToken, preRefreshToken); // AccessToken만 재발급
             } else {
                 userRepository.updateToken(user.getId(), jwtAccessToken, jwtRefreshToken); // AccessToken 및 RefreshToken 둘다 재발급

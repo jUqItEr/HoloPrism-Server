@@ -1,8 +1,10 @@
 package com.dita.holoprism.security.config;
 
+import com.dita.holoprism.security.handler.CustomLogoutHandler;
 import com.dita.holoprism.security.handler.OAuth2SuccessHandler;
 import com.dita.holoprism.security.jwt.*;
 import com.dita.holoprism.security.service.OAuth2UserService;
+import com.dita.holoprism.user.repository.UserRepository;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +30,8 @@ public class SpringSecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final UserRepository userRepository;
+    private final CustomLogoutHandler customLogoutHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,7 +63,11 @@ public class SpringSecurityConfig {
                     .userService(service)
                 )
                     .successHandler(oAuth2SuccessHandler)
-            ).with(new JwtSecurityConfig(jwtTokenProvider), customizer -> {});
+            ).with(new JwtSecurityConfig(jwtTokenProvider, userRepository), customizer -> {})
+                .logout(logout -> logout
+                        .addLogoutHandler(customLogoutHandler)
+                        .logoutSuccessUrl("/login"));
+
         return http.build();
     }
 }

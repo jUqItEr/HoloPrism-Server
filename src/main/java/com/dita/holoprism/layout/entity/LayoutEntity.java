@@ -1,6 +1,7 @@
 package com.dita.holoprism.layout.entity;
 
 import com.dita.holoprism.user.entity.UserEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,8 @@ import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Builder
 @AllArgsConstructor
@@ -21,8 +23,9 @@ public class LayoutEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_tbl_id")
+    @JsonIgnore
     private UserEntity user;
 
     @JdbcTypeCode(SqlTypes.JSON)

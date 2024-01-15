@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         UserEntity user = principalDetails.getUser();
         System.out.println(user); //TODO
+
+        userRepository.updateVisitedTime(user.getId());
 
         String jwtAccessToken = jwtTokenProvider.createToken(authentication);
         String jwtRefreshToken = jwtTokenProvider.createRefreshToken();

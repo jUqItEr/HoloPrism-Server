@@ -4,6 +4,8 @@ import com.dita.holoprism.layout.entity.LayoutEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Entity
 @Builder
@@ -44,6 +46,6 @@ public class UserEntity {
     @Column(name = "role")
     private int permission;
 
-    @OneToOne(mappedBy = "user")
-    private LayoutEntity layout;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<LayoutEntity> layout;
 }

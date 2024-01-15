@@ -1,5 +1,6 @@
 package com.dita.holoprism.security.jwt;
 
+import com.dita.holoprism.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -32,7 +33,6 @@ public class JwtTokenProvider implements InitializingBean {
    private final long tokenExpirationInSeconds;
    private Key key;
    private String accessHeader = "Authorization";
-   private String refreshHeader = "Authorization-Refresh";
 
    public JwtTokenProvider(
       @Value("${jwt.secret}") String secret,
@@ -98,26 +98,25 @@ public class JwtTokenProvider implements InitializingBean {
       return new UsernamePasswordAuthenticationToken(principal, token, authorities);
    }
 
-   public boolean validateToken(String token) {
+   public String validateToken(String token) {
+      String isValidate = "";
       try {
          Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-         return true;
+         isValidate = "ACCESS";
       } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
          logger.info("잘못된 JWT 서명입니다.");
+         isValidate = "DENIED";
       } catch (ExpiredJwtException e) {
          logger.info("만료된 JWT 토큰입니다.");
+         isValidate = "EXPIRED";
       } catch (UnsupportedJwtException e) {
          logger.info("지원되지 않는 JWT 토큰입니다.");
+         isValidate = "DENIED";
       } catch (IllegalArgumentException e) {
          logger.info("JWT 토큰이 잘못되었습니다.");
+         isValidate = "DENIED";
       }
-      return false;
-   }
-
-   public Optional<String> extractRefreshToken(HttpServletRequest request) {
-      return Optional.ofNullable(request.getHeader(refreshHeader))
-              .filter(refreshToken -> refreshToken.startsWith("Bearer "))
-              .map(refreshToken -> refreshToken.replace("Bearer ", ""));
+      return isValidate;
    }
 
    public Optional<String> extractAccessToken(HttpServletRequest request) {

@@ -98,6 +98,21 @@ public class JwtTokenProvider implements InitializingBean {
       return new UsernamePasswordAuthenticationToken(principal, token, authorities);
    }
 
+   public String getSubject(String token) {
+      try {
+         Claims claims = Jwts
+                 .parserBuilder()
+                 .setSigningKey(key)
+                 .build()
+                 .parseClaimsJws(token)
+                 .getBody();
+
+         return claims.getSubject();
+      } catch (ExpiredJwtException e) {
+         return e.getClaims().getSubject();
+      }
+   }
+
    public String validateToken(String token) {
       String isValidate = "";
       try {

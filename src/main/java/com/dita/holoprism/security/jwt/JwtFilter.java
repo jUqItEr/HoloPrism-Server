@@ -12,10 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -30,11 +30,11 @@ public class JwtFilter extends GenericFilterBean {
    public static final String AUTHORIZATION_HEADER = "Authorization";
    private final JwtTokenProvider jwtTokenProvider;
    private final UserRepository userRepository;
+   private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
    @Override
    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
       HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-      HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
       String jwt = resolveToken(httpServletRequest);
       String requestURI = httpServletRequest.getRequestURI();
 
@@ -42,25 +42,35 @@ public class JwtFilter extends GenericFilterBean {
          Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
          SecurityContextHolder.getContext().setAuthentication(authentication);
          logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+
       } else if (StringUtils.hasText(jwt) && (jwtTokenProvider.validateToken(jwt).equals("EXPIRED"))){
          logger.debug("Access token expired, uri: {}", requestURI);
          String refreshToken = null;
-         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-         UserEntity user = principalDetails.getUser();
-         user.setPassword(null);
-         if (StringUtils.hasText(user.getId())) { // 로그인 정보를 통해 ID값을 다시 받아옴
-            refreshToken = userRepository.getUserRefreshToken(user.getId()); // userId로 refreshToken 조회
+         String userId = jwtTokenProvider.getSubject(jwt);
+
+         if (StringUtils.hasText(userId)) { // 로그인 정보를 통해 ID값을 다시 받아옴
+            refreshToken = userRepository.getUserRefreshToken(userId); // userId로 refreshToken 조회
          }
 
          // DB에 저장된 refresh token 검증
          if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken).equals("ACCESS")) {
             // access token 재발급
-            Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
+            UserEntity user = userRepository.findById(userId).orElse(null);
+            String userPassword = user.getPassword();
+            user.setPassword("");
+            PrincipalDetails principalDetails = new PrincipalDetails(user);
+            Authentication authentication =
+                    new UsernamePasswordAuthenticationToken(principalDetails, userPassword, principalDetails.getAuthorities());
+
             String newAccessToken = jwtTokenProvider.createToken(authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            userRepository.updateAccessToken(userId, newAccessToken);
 
-            httpServletResponse.setHeader(AUTHORIZATION_HEADER, newAccessToken);
+            ((HttpServletResponse) servletResponse).setHeader(AUTHORIZATION_HEADER, "Bearer " + newAccessToken);
             logger.info("Reissue access token");
+            System.out.println("3333333333"); //TODO
+         } else {
+            ((HttpServletResponse) servletResponse).sendRedirect("/logout");
          }
          // refresh token이 없거나 잘못된 경우 바로 logout
       }

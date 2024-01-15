@@ -18,6 +18,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public UserEntity createUser(RegisterDto dto) {
+        if (userRepository.existsById(dto.getId())) {
+            System.out.println("이미 존재하는 ID입니다.");
+            return null;
+        }
         String password = dto.getPassword();
         dto.setPassword(passwordEncoder.encode(password));
         return userRepository.save(dto.toEntity());

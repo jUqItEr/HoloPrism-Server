@@ -33,5 +33,8 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     @Query(value = "UPDATE user_tbl SET access_token = :accessToken, refresh_token = :refreshToken WHERE id = :id", nativeQuery = true)
     void updateToken(@Param("id") String id, @Param("accessToken") String accessToken, @Param("refreshToken") String refreshToken);
 
-
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE user_tbl SET access_token = :accessToken WHERE id = :id", nativeQuery = true)
+    void updateAccessToken(@Param("id") String id, @Param("accessToken") String accessToken);
 }

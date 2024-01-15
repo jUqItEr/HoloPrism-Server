@@ -46,6 +46,6 @@ public class UserEntity {
     @Column(name = "role")
     private int permission;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<LayoutEntity> layout;
 }

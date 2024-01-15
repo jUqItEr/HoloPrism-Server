@@ -5,6 +5,7 @@ import com.dita.holoprism.security.jwt.JwtFilter;
 import com.dita.holoprism.security.jwt.JwtTokenProvider;
 import com.dita.holoprism.user.dto.LoginDto;
 import com.dita.holoprism.user.entity.UserEntity;
+import com.dita.holoprism.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,10 +23,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final UserRepository userRepository;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    public AuthController(JwtTokenProvider jwtTokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public AuthController(JwtTokenProvider jwtTokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/authenticate")
@@ -60,5 +66,19 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(userResponse);
+    }
+
+    @PostMapping("/token/logout")
+    public ResponseEntity<?> logout(@RequestHeader(AUTHORIZATION_HEADER) String accessToken) {
+
+        if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        userRepository.updateToken(principalDetails.getUser().getId(), "", ""); // DB에 저장된 토큰을 모두 삭제함
+
+        return ResponseEntity.ok("로그아웃 성공");
     }
 }

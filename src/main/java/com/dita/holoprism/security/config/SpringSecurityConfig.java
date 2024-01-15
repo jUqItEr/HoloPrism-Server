@@ -5,10 +5,12 @@ import com.dita.holoprism.security.handler.OAuth2SuccessHandler;
 import com.dita.holoprism.security.jwt.*;
 import com.dita.holoprism.security.service.OAuth2UserService;
 import com.dita.holoprism.user.repository.UserRepository;
+import com.dita.holoprism.user.service.UserService;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,6 +34,7 @@ public class SpringSecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final UserRepository userRepository;
     private final CustomLogoutHandler customLogoutHandler;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -63,7 +66,7 @@ public class SpringSecurityConfig {
                     .userService(service)
                 )
                     .successHandler(oAuth2SuccessHandler)
-            ).with(new JwtSecurityConfig(jwtTokenProvider, userRepository), customizer -> {})
+            ).with(new JwtSecurityConfig(jwtTokenProvider, userRepository, authenticationManagerBuilder), customizer -> {})
                 .logout(logout -> logout
                         .addLogoutHandler(customLogoutHandler)
                         .logoutSuccessUrl("/login"));

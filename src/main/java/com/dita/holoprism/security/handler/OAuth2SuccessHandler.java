@@ -46,12 +46,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 userRepository.updateToken(user.getId(), jwtAccessToken, preRefreshToken); // AccessToken만 재발급
             } else {
                 userRepository.updateToken(user.getId(), jwtAccessToken, jwtRefreshToken); // AccessToken 및 RefreshToken 둘다 재발급
+                jwtRefreshToken = preRefreshToken;
             }
         } else { // refreshToken이 존재하지 않으면 새로 발급한 토큰을 그대로 저장
             userRepository.updateToken(user.getId(), jwtAccessToken, jwtRefreshToken);
         }
-
-        String targetUrl = "";
 
         response.addHeader("Authorization", "Bearer " + jwtAccessToken);
     }

@@ -22,10 +22,9 @@ public class CustomLogoutHandler implements LogoutHandler{
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         UserEntity user = principalDetails.getUser();
-        userRepository.updateToken(user.getId(), "", "");
+        userRepository.updateToken(user.getId(), null, null);
         SecurityContextHolder.clearContext();
     }
-
 }

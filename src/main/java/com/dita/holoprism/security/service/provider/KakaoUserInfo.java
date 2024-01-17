@@ -3,7 +3,7 @@ package com.dita.holoprism.security.service.provider;
 import java.util.Map;
 
 public class KakaoUserInfo implements OAuth2UserInfo {
-    private Map<String, Object> attributes;
+    private final Map<String, Object> attributes;
     private Map<String, Object> properties;
     private Map<String, Object> kakaoAccount;
     private Map<String, Object> profile;

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -60,7 +60,6 @@ public class AuthController {
                 .image(user.getImage())
                 .createdTime(user.getCreatedTime())
                 .visitedTime(user.getVisitedTime())
-                .accessToken(user.getAccessToken())
                 .permission(user.getPermission())
                 .build();
 

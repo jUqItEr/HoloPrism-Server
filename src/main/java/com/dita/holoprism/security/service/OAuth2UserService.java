@@ -75,8 +75,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .build();
 
             userRepository.save(user); // 최초 회원가입 createdTime now
-//            userRepository.updateVisitedTime(userId); // 최초 회원가입 visitedTime now
-            System.out.println("register user Info!!! : " + user);
         }
         return new PrincipalDetails(user, oAuth2User.getAttributes());
     }

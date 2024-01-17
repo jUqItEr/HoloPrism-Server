@@ -17,24 +17,24 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, String> {
     Optional<UserEntity> findByIdAndProvider(String id, String provider);
 
-    @Query(value = "SELECT COUNT(*) FROM user_tbl WHERE id = :id AND refresh_token IS NOT NULL", nativeQuery = true)
+    @Query(value = "select count(*) from user_tbl where id = :id and refresh_token is not null", nativeQuery = true)
     int findUserRefreshToken(@Param("id") String id);
 
-    @Query(value = "SELECT refresh_token FROM user_tbl WHERE id = :id", nativeQuery = true)
+    @Query(value = "select refresh_token from user_tbl where id = :id", nativeQuery = true)
     String getUserRefreshToken(@Param("id") String id);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE user_tbl SET visited_at = now() WHERE id = :userId", nativeQuery = true)
+    @Query(value = "update user_tbl set visited_at = now() where id = :userId", nativeQuery = true)
     void updateVisitedTime(@Param("userId") String userId);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE user_tbl SET access_token = :accessToken, refresh_token = :refreshToken WHERE id = :id", nativeQuery = true)
+    @Query(value = "update user_tbl set access_token = :accessToken, refresh_token = :refreshToken where id = :id", nativeQuery = true)
     void updateToken(@Param("id") String id, @Param("accessToken") String accessToken, @Param("refreshToken") String refreshToken);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE user_tbl SET access_token = :accessToken WHERE id = :id", nativeQuery = true)
+    @Query(value = "update user_tbl set access_token = :accessToken where id = :id", nativeQuery = true)
     void updateAccessToken(@Param("id") String id, @Param("accessToken") String accessToken);
 }

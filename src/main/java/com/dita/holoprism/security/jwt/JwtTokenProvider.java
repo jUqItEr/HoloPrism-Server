@@ -1,5 +1,7 @@
 package com.dita.holoprism.security.jwt;
 
+import com.dita.holoprism.security.auth.PrincipalDetails;
+import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -33,14 +35,17 @@ public class JwtTokenProvider implements InitializingBean {
    private final long tokenExpirationInSeconds;
    private Key key;
    private String accessHeader = "Authorization";
+   private final UserRepository userRepository;
 
    public JwtTokenProvider(
       @Value("${jwt.secret}") String secret,
       @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
-      @Value("${jwt.token-expiration-in-seconds}") long tokenExpirationInSeconds) {
+      @Value("${jwt.token-expiration-in-seconds}") long tokenExpirationInSeconds,
+      UserRepository userRepository) {
       this.secret = secret;
       this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
       this.tokenExpirationInSeconds = tokenExpirationInSeconds * 1000;
+      this.userRepository = userRepository;
    }
 
    @Override
@@ -92,10 +97,33 @@ public class JwtTokenProvider implements InitializingBean {
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-      User principal = new User(claims.getSubject(), "", authorities);
+      //User principal = new User(claims.getSubject(), "", authorities);
+
+      UserEntity user;
+
+      if (claims.getSubject().startsWith("google")) {
+         user = getPrincipal(claims.getSubject(), "google");
+      } else if (claims.getSubject().startsWith("kakao")) {
+         user = getPrincipal(claims.getSubject(), "kakao");
+      } else if (claims.getSubject().startsWith("naver")) {
+         user = getPrincipal(claims.getSubject(), "naver");
+      } else {
+         user = getPrincipal(claims.getSubject(), null);
+      }
+
+      PrincipalDetails principalDetails = new PrincipalDetails(user);
+
+      System.out.println("princialDetails : " + principalDetails); // TODO
       System.out.println("token : " + token); // TODO
       System.out.println("authorities : " + authorities); // TODO
-      return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+      return new UsernamePasswordAuthenticationToken(principalDetails, token, authorities);
+   }
+
+   public UserEntity getPrincipal(String userId, String social) {
+      Optional<UserEntity> userOptional = userRepository.findByIdAndProvider(userId, social);
+      UserEntity user = userOptional.get();
+
+      return user;
    }
 
    public String getSubject(String token) {

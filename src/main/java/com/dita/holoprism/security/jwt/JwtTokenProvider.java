@@ -62,7 +62,7 @@ public class JwtTokenProvider implements InitializingBean {
 
       long now = (new Date()).getTime();
       Date validity = new Date(now + this.tokenValidityInMilliseconds);
-      System.out.println("token generated"); // TODO
+
       return Jwts.builder()
          .setSubject(authentication.getName())
          .claim(AUTHORITIES_KEY, authorities)
@@ -75,7 +75,7 @@ public class JwtTokenProvider implements InitializingBean {
 
       long now = (new Date()).getTime();
       Date validity = new Date(now + this.tokenExpirationInSeconds);
-      System.out.println(" refresh 토큰 생성됨"); // TODO
+
       return Jwts.builder()
               .setSubject("refreshToken")
               .signWith(key, SignatureAlgorithm.HS512)
@@ -91,7 +91,6 @@ public class JwtTokenProvider implements InitializingBean {
               .parseClaimsJws(token)
               .getBody();
 
-      System.out.println("claims : " + claims); // TODO
       Collection<? extends GrantedAuthority> authorities =
          Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
             .map(SimpleGrantedAuthority::new)
@@ -100,22 +99,19 @@ public class JwtTokenProvider implements InitializingBean {
       //User principal = new User(claims.getSubject(), "", authorities);
 
       UserEntity user;
-
-      if (claims.getSubject().startsWith("google")) {
-         user = getPrincipal(claims.getSubject(), "google");
-      } else if (claims.getSubject().startsWith("kakao")) {
-         user = getPrincipal(claims.getSubject(), "kakao");
-      } else if (claims.getSubject().startsWith("naver")) {
-         user = getPrincipal(claims.getSubject(), "naver");
+      String userId = claims.getSubject();
+      if (userId.startsWith("google")) {
+         user = getPrincipal(userId, "google");
+      } else if (userId.startsWith("kakao")) {
+         user = getPrincipal(userId, "kakao");
+      } else if (userId.startsWith("naver")) {
+         user = getPrincipal(userId, "naver");
       } else {
-         user = getPrincipal(claims.getSubject(), null);
+         user = getPrincipal(userId, null);
       }
 
       PrincipalDetails principalDetails = new PrincipalDetails(user);
 
-      System.out.println("princialDetails : " + principalDetails); // TODO
-      System.out.println("token : " + token); // TODO
-      System.out.println("authorities : " + authorities); // TODO
       return new UsernamePasswordAuthenticationToken(principalDetails, token, authorities);
    }
 

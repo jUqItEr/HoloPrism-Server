@@ -1,6 +1,5 @@
 package com.dita.holoprism.security.handler;
 
-import com.dita.holoprism.security.auth.PrincipalDetails;
 import com.dita.holoprism.security.jwt.JwtTokenProvider;
 import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
@@ -8,14 +7,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 @RequiredArgsConstructor
@@ -30,8 +28,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        UserEntity user = principalDetails.getUser();
+
+        UserEntity user = (UserEntity) authentication.getPrincipal();;
 
         userRepository.updateVisitedTime(user.getId());
 

@@ -1,5 +1,7 @@
 package com.dita.holoprism.security.jwt;
 
+import com.dita.holoprism.security.auth.PrincipalDetails;
+import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -33,14 +35,17 @@ public class JwtTokenProvider implements InitializingBean {
    private final long tokenExpirationInSeconds;
    private Key key;
    private String accessHeader = "Authorization";
+   private final UserRepository userRepository;
 
    public JwtTokenProvider(
       @Value("${jwt.secret}") String secret,
       @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
-      @Value("${jwt.token-expiration-in-seconds}") long tokenExpirationInSeconds) {
+      @Value("${jwt.token-expiration-in-seconds}") long tokenExpirationInSeconds,
+      UserRepository userRepository) {
       this.secret = secret;
       this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
       this.tokenExpirationInSeconds = tokenExpirationInSeconds * 1000;
+      this.userRepository = userRepository;
    }
 
    @Override
@@ -57,7 +62,7 @@ public class JwtTokenProvider implements InitializingBean {
 
       long now = (new Date()).getTime();
       Date validity = new Date(now + this.tokenValidityInMilliseconds);
-      System.out.println("token generated"); // TODO
+
       return Jwts.builder()
          .setSubject(authentication.getName())
          .claim(AUTHORITIES_KEY, authorities)
@@ -70,7 +75,7 @@ public class JwtTokenProvider implements InitializingBean {
 
       long now = (new Date()).getTime();
       Date validity = new Date(now + this.tokenExpirationInSeconds);
-      System.out.println(" refresh 토큰 생성됨"); // TODO
+
       return Jwts.builder()
               .setSubject("refreshToken")
               .signWith(key, SignatureAlgorithm.HS512)
@@ -86,16 +91,35 @@ public class JwtTokenProvider implements InitializingBean {
               .parseClaimsJws(token)
               .getBody();
 
-      System.out.println("claims : " + claims); // TODO
       Collection<? extends GrantedAuthority> authorities =
          Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-      User principal = new User(claims.getSubject(), "", authorities);
-      System.out.println("token : " + token); // TODO
-      System.out.println("authorities : " + authorities); // TODO
-      return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+      //User principal = new User(claims.getSubject(), "", authorities);
+
+      UserEntity user;
+      String userId = claims.getSubject();
+      if (userId.startsWith("google")) {
+         user = getPrincipal(userId, "google");
+      } else if (userId.startsWith("kakao")) {
+         user = getPrincipal(userId, "kakao");
+      } else if (userId.startsWith("naver")) {
+         user = getPrincipal(userId, "naver");
+      } else {
+         user = getPrincipal(userId, null);
+      }
+
+      PrincipalDetails principalDetails = new PrincipalDetails(user);
+
+      return new UsernamePasswordAuthenticationToken(principalDetails, token, authorities);
+   }
+
+   public UserEntity getPrincipal(String userId, String social) {
+      Optional<UserEntity> userOptional = userRepository.findByIdAndProvider(userId, social);
+      UserEntity user = userOptional.get();
+
+      return user;
    }
 
    public String getSubject(String token) {

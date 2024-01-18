@@ -29,6 +29,7 @@ public class SpringSecurityConfig {
     private final CorsConfig corsConfig;
     private final JwtTokenProvider jwtTokenProvider;
     private final CorsFilter corsFilter;
+    private final JwtFilter jwtFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -46,6 +47,7 @@ public class SpringSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
 
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -66,7 +68,7 @@ public class SpringSecurityConfig {
                     .userService(service)
                 )
                     .successHandler(oAuth2SuccessHandler)
-            ).with(new JwtSecurityConfig(jwtTokenProvider, userRepository, authenticationManagerBuilder), customizer -> {})
+            )
                 .logout(logout -> logout
                         .addLogoutHandler(customLogoutHandler)
                         .logoutSuccessUrl("/login"));

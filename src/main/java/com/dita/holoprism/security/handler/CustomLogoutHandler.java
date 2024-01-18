@@ -18,14 +18,14 @@ import org.springframework.util.StringUtils;
 public class CustomLogoutHandler implements LogoutHandler{
 
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public void logout(HttpServletRequest request,
+                       HttpServletResponse response,
+                       Authentication authentication) {
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         UserEntity user = principalDetails.getUser();
-        userRepository.updateToken(user.getId(), "", "");
+        userRepository.updateToken(user.getId(), null, null);
         SecurityContextHolder.clearContext();
     }
-
 }

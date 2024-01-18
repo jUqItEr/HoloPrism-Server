@@ -26,19 +26,18 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
 
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
         UserEntity user = principalDetails.getUser();
-        System.out.println(user); //TODO
 
         userRepository.updateVisitedTime(user.getId());
 
         String jwtAccessToken = jwtTokenProvider.createToken(authentication);
         String jwtRefreshToken = jwtTokenProvider.createRefreshToken();
 
-        System.out.println(jwtAccessToken);//TODO
-        System.out.println(jwtRefreshToken);//TODO
         if (userRepository.findUserRefreshToken(user.getId()) == 1) { // refreshToken이 이미 존재할 경우
 
             String preRefreshToken = userRepository.getUserRefreshToken(user.getId());
@@ -46,7 +45,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 userRepository.updateToken(user.getId(), jwtAccessToken, preRefreshToken); // AccessToken만 재발급
             } else {
                 userRepository.updateToken(user.getId(), jwtAccessToken, jwtRefreshToken); // AccessToken 및 RefreshToken 둘다 재발급
-                jwtRefreshToken = preRefreshToken;
             }
         } else { // refreshToken이 존재하지 않으면 새로 발급한 토큰을 그대로 저장
             userRepository.updateToken(user.getId(), jwtAccessToken, jwtRefreshToken);

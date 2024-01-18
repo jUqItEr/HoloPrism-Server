@@ -3,8 +3,12 @@ package com.dita.holoprism.user.entity;
 import com.dita.holoprism.layout.entity.LayoutEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.List;
+import java.util.*;
 
 @Data
 @Entity
@@ -12,7 +16,10 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "user_tbl")
-public class UserEntity {
+public class UserEntity implements UserDetails, OAuth2User {
+
+    private final Map<String, Object> attributes;
+
     @Id
     @Column(length = 64)
     private String id;
@@ -48,4 +55,59 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<LayoutEntity> layout;
+
+
+    // UserDetails and OAuth2User methods
+    @Override
+    public String getName() {
+        return nickname;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+
+        switch (this.permission) {
+            case 0:
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                break;
+                // DB role : 0
+            case 1:
+                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                break;
+                // DB role : 1
+        }
+
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return id;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

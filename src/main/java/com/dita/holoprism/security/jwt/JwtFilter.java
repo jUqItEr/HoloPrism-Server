@@ -1,6 +1,5 @@
 package com.dita.holoprism.security.jwt;
 
-import com.dita.holoprism.security.auth.PrincipalDetails;
 import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -9,7 +8,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,6 @@ public class JwtFilter extends GenericFilterBean {
 
    private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
    public static final String AUTHORIZATION_HEADER = "Authorization";
-   public static final String AUTHORIZATION_REFRESH_HEADER = "Refresh";
    private final JwtTokenProvider jwtTokenProvider;
    private final UserRepository userRepository;
    private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -62,9 +59,10 @@ public class JwtFilter extends GenericFilterBean {
             if (StringUtils.hasText(refreshToken) && jwtTokenProvider.validateToken(refreshToken).equals("ACCESS")) {
                // access token 재발급
                UserEntity user = userRepository.findById(userId).orElse(null);
-               PrincipalDetails principalDetails = new PrincipalDetails(user);
+               String userPassword = user.getPassword();
+               user.setPassword(null);
                Authentication authentication =
-                       new UsernamePasswordAuthenticationToken(principalDetails, user.getPassword(), principalDetails.getAuthorities());
+                       new UsernamePasswordAuthenticationToken(user, userPassword, user.getAuthorities());
 
                String newAccessToken = jwtTokenProvider.createToken(authentication);
                SecurityContextHolder.getContext().setAuthentication(authentication);

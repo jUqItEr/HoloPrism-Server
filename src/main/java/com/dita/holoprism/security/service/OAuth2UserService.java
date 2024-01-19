@@ -1,14 +1,11 @@
 package com.dita.holoprism.security.service;
 
-import com.dita.holoprism.security.auth.PrincipalDetails;
 import com.dita.holoprism.security.service.provider.GoogleUserInfo;
 import com.dita.holoprism.security.service.provider.KakaoUserInfo;
 import com.dita.holoprism.security.service.provider.NaverUserInfo;
 import com.dita.holoprism.security.service.provider.OAuth2UserInfo;
-import com.dita.holoprism.user.dto.RegisterDto;
 import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
-import com.dita.holoprism.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -62,7 +59,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             // 여기에서 방문시각 업데이트 로그인 한거니까
         } else {
             // 회원가입
-            System.out.println("OAuth2 register!!");
+
             user = UserEntity.builder()
                     .id(userId)
                     .email(oAuth2UserInfo.getEmail())
@@ -76,7 +73,17 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
             userRepository.save(user); // 최초 회원가입 createdTime now
         }
-        return new PrincipalDetails(user, oAuth2User.getAttributes());
+        return UserEntity.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .password(null)
+                .email(user.getEmail())
+                .image(user.getImage())
+                .createdTime(user.getCreatedTime())
+                .visitedTime(user.getVisitedTime())
+                .permission(user.getPermission())
+                .attributes(oAuth2User.getAttributes())
+                .layout(user.getLayout())
+                .build();
     }
-
 }

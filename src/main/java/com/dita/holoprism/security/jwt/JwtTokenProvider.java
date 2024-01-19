@@ -1,6 +1,5 @@
 package com.dita.holoprism.security.jwt;
 
-import com.dita.holoprism.security.auth.PrincipalDetails;
 import com.dita.holoprism.user.entity.UserEntity;
 import com.dita.holoprism.user.repository.UserRepository;
 import io.jsonwebtoken.*;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -110,9 +108,7 @@ public class JwtTokenProvider implements InitializingBean {
          user = getPrincipal(userId, null);
       }
 
-      PrincipalDetails principalDetails = new PrincipalDetails(user);
-
-      return new UsernamePasswordAuthenticationToken(principalDetails, token, authorities);
+      return new UsernamePasswordAuthenticationToken(user, token, authorities);
    }
 
    public UserEntity getPrincipal(String userId, String social) {

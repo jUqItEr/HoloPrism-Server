@@ -18,6 +18,7 @@ import java.util.*;
 @Table(name = "user_tbl")
 public class UserEntity implements UserDetails, OAuth2User {
 
+    @Transient
     private final Map<String, Object> attributes;
 
     @Id
@@ -56,6 +57,9 @@ public class UserEntity implements UserDetails, OAuth2User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<LayoutEntity> layout;
 
+    public UserEntity() {
+        this.attributes = new HashMap<>();
+    }
 
     // UserDetails and OAuth2User methods
     @Override
